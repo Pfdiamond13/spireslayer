@@ -7,9 +7,10 @@ interface Props {
 }
 
 interface State {
-  dmgTotal: number
-  blockTotal: number
-  listOfCardsPlayed: {name: string, dmg: number, block: number, type: string}[]
+  dmgTotal: number,
+  blockTotal: number,
+  energy: number,
+  listOfCardsPlayed: {name: string, dmg: number, block: number}[],
   strength: number,
   dexterity: number,
   selfIsWeak: boolean,
@@ -26,6 +27,7 @@ class App extends React.Component< Props, State > {
     this.state = {
       dmgTotal: 0,
       blockTotal: 0,
+      energy: 0,
       listOfCardsPlayed: [],
       strength: 0,
       dexterity: 0,
@@ -40,44 +42,45 @@ class App extends React.Component< Props, State > {
   }
 
   // Change 0.25 to dynamic if certain relic
-  // Update function to be based on per card not total?
-  // Change how str works here currently broken on weak
   // Update to increment number of Attacks played
-  calculateDamge = () => {
-    const { listOfCardsPlayed, selfIsWeak, enemyIsVunerable, strength } = this.state;
-    let basicDamage = listOfCardsPlayed.reduce((acc, obj) => (acc + obj.dmg), 0);
+  calculateDamge = (dmg:number) => {
+    const { selfIsWeak, enemyIsVunerable, strength } = this.state;
+    let totalDamage = dmg;
     if (selfIsWeak) {
-      basicDamage = Math.floor(basicDamage - (basicDamage * 0.25));
+      totalDamage = Math.floor(totalDamage - (totalDamage * 0.25));
     }
     if (enemyIsVunerable) {
-      basicDamage = Math.floor(basicDamage + (basicDamage * 0.50));
+      totalDamage = Math.floor(totalDamage + (totalDamage * 0.50));
     }
     if (strength > 0 || strength < 0) {
-      basicDamage += (listOfCardsPlayed.length * strength);
+      totalDamage += strength;
     }
-    this.setState({ dmgTotal: basicDamage });
+    return totalDamage;
   }
 
   // Change 0.25 to dynamic if certain relic
-  // Update function to be based on per card not total?
-  // Change how dex works here, currently broken with frail
   // Update to increment number of blocks played
-  calculateBlock = () => {
-    const { listOfCardsPlayed, selfIsFrail, dexterity } = this.state;
-    let basicBlock = listOfCardsPlayed.reduce((acc, obj) => (acc + obj.block), 0);
+  calculateBlock = (block:number) => {
+    const { selfIsFrail, dexterity } = this.state;
+    let basicBlock = block;
     if (selfIsFrail) {
       basicBlock = Math.floor(basicBlock - (basicBlock * 0.25));
     }
     if (dexterity > 0 || dexterity < 0) {
-      basicBlock += (listOfCardsPlayed.length * dexterity);
+      basicBlock += dexterity;
     }
-    this.setState({ blockTotal: basicBlock });
+    return basicBlock;
   }
 
-  // Replace static data with real cards
-  // Cards need to show how dmg is effected by dmg or buffs/debuffs
-  addCard = () => {
-    this.setState({ listOfCardsPlayed: [...this.state.listOfCardsPlayed, { name: 'Strike', dmg: 6, block: 0, type: 'attack' }] });
+  playCard = () => {
+    let { dmgTotal, blockTotal, listOfCardsPlayed } = this.state;
+    // REPLACE PLACEHOLDER CARD TYPES
+    const card = {
+      name: 'Strike', dmg: 6, block: 0, calculatedDmg: () => { return this.calculateDamge(card.dmg); }, calculatedBlock: () => { return this.calculateBlock(card.block); }, action: () => {}, type: 'attack',
+      // name: 'Block', dmg: 0, block: 5, calculatedDmg: () => { return this.calculateDamge(card.dmg); }, calculatedBlock: () => { return this.calculateBlock(card.block); }, action: () => {}, type: 'skill',
+    };
+    const playedCard = { name: card.name, dmg: card.calculatedDmg(), block: card.calculatedBlock() };
+    this.setState({ listOfCardsPlayed: [...listOfCardsPlayed, playedCard], dmgTotal: dmgTotal += playedCard.dmg, blockTotal: blockTotal += playedCard.block });
   }
 
   // Ask Ben about this type
@@ -92,10 +95,11 @@ class App extends React.Component< Props, State > {
   render() {
     const {
       dmgTotal,
+      blockTotal,
+      energy,
       listOfCardsPlayed,
       strength,
       dexterity,
-      blockTotal,
       listOfRelics,
       numberOfAttacks,
       numberOfBlocks,
@@ -108,6 +112,8 @@ class App extends React.Component< Props, State > {
         {card.name}
         Damage:
         {card.dmg}
+        Block:
+        {card.block}
       </li>
     ));
 
@@ -130,6 +136,10 @@ class App extends React.Component< Props, State > {
         <div>
           Current Dexterity:
           {dexterity}
+        </div>
+        <div>
+          Current Energy:
+          {energy}
         </div>
         <div>
           Current Debuffs:
@@ -158,11 +168,10 @@ class App extends React.Component< Props, State > {
           Cards Exhausted:
           {cardsExhausted}
         </div>
-        <button type="button" onClick={this.addCard}>Add Card:</button>
         <div>Cards Played:</div>
         <ul>{cardsPlayed}</ul>
         {/* Remove this button and make function update on state change of cards played */}
-        <button type="button" onClick={this.calculateDamge}>Test Calculate Damage</button>
+        <button type="button" onClick={this.playCard}>Play Card</button>
       </div>
     );
   }
