@@ -1,7 +1,14 @@
 import React from 'react';
 import './App.css';
-
 // TODO Figure out how to do exhaust cards
+
+// Move into new file
+const data = {
+  cards: [
+    { name: 'Strike', dmg: 6, block: 0, energy: 1, action: () => {} },
+    { name: 'Block', dmg: 0, block: 5, energy: 1, action: () => {} },
+  ],
+};
 
 interface Props {
 }
@@ -10,7 +17,7 @@ interface State {
   dmgTotal: number,
   blockTotal: number,
   energy: number,
-  listOfCardsPlayed: {name: string, dmg: number, block: number}[],
+  listOfCardsPlayed: {name: string, dmg: number, block: number, energy: number}[],
   strength: number,
   dexterity: number,
   selfIsWeak: boolean,
@@ -20,6 +27,7 @@ interface State {
   numberOfAttacks: number,
   numberOfBlocks: number,
   cardsExhausted: number,
+  selectedCard: {name: string, dmg: number, block: number, energy: number, action: Function },
 }
 class App extends React.Component< Props, State > {
   constructor(props: Props) {
@@ -27,7 +35,7 @@ class App extends React.Component< Props, State > {
     this.state = {
       dmgTotal: 0,
       blockTotal: 0,
-      energy: 0,
+      energy: 3,
       listOfCardsPlayed: [],
       strength: 0,
       dexterity: 0,
@@ -38,12 +46,13 @@ class App extends React.Component< Props, State > {
       numberOfAttacks: 0,
       numberOfBlocks: 0,
       cardsExhausted: 0,
+      selectedCard: { name: 'Strike', dmg: 6, block: 0, energy: 1, action: () => {} },
     };
   }
 
   // Change 0.25 to dynamic if certain relic
   // Update to increment number of Attacks played
-  calculateDamge = (dmg:number) => {
+  calculateDamage = (dmg:number) => {
     const { selfIsWeak, enemyIsVunerable, strength } = this.state;
     let totalDamage = dmg;
     if (selfIsWeak) {
@@ -72,15 +81,10 @@ class App extends React.Component< Props, State > {
     return basicBlock;
   }
 
-  playCard = () => {
-    let { dmgTotal, blockTotal, listOfCardsPlayed } = this.state;
-    // REPLACE PLACEHOLDER CARD TYPES
-    const card = {
-      name: 'Strike', dmg: 6, block: 0, calculatedDmg: () => { return this.calculateDamge(card.dmg); }, calculatedBlock: () => { return this.calculateBlock(card.block); }, action: () => {}, type: 'attack',
-      // name: 'Block', dmg: 0, block: 5, calculatedDmg: () => { return this.calculateDamge(card.dmg); }, calculatedBlock: () => { return this.calculateBlock(card.block); }, action: () => {}, type: 'skill',
-    };
-    const playedCard = { name: card.name, dmg: card.calculatedDmg(), block: card.calculatedBlock() };
-    this.setState({ listOfCardsPlayed: [...listOfCardsPlayed, playedCard], dmgTotal: dmgTotal += playedCard.dmg, blockTotal: blockTotal += playedCard.block });
+  playCard = (card: any) => {
+    let { dmgTotal, blockTotal, listOfCardsPlayed, energy } = this.state;
+    const playedCard = { name: card.name, dmg: this.calculateDamage(card.dmg), block: this.calculateBlock(card.block), energy: card.energy };
+    this.setState({ listOfCardsPlayed: [...listOfCardsPlayed, playedCard], dmgTotal: dmgTotal += playedCard.dmg, blockTotal: blockTotal += playedCard.block, energy: energy -= playedCard.energy });
   }
 
   // Ask Ben about this type
@@ -90,6 +94,10 @@ class App extends React.Component< Props, State > {
     } else {
       this.setState((prevState) => ({ selfIsWeak: !prevState.selfIsWeak }));
     }
+  }
+
+  selectCard = (e: any) => {
+    this.setState({ selectedCard: data.cards[e.target.value] });
   }
 
   render() {
@@ -104,6 +112,7 @@ class App extends React.Component< Props, State > {
       numberOfAttacks,
       numberOfBlocks,
       cardsExhausted,
+      selectedCard,
     } = this.state;
 
     const cardsPlayed = listOfCardsPlayed.map((card) => (
@@ -114,6 +123,8 @@ class App extends React.Component< Props, State > {
         {card.dmg}
         Block:
         {card.block}
+        Energy Cost:
+        {card.energy}
       </li>
     ));
 
@@ -122,6 +133,10 @@ class App extends React.Component< Props, State > {
         Name:
         {relic.name}
       </li>
+    ));
+
+    const listOfCards = data.cards.map((card, index) => (
+      <option value={index}>{card.name}</option>
     ));
 
     return (
@@ -168,10 +183,15 @@ class App extends React.Component< Props, State > {
           Cards Exhausted:
           {cardsExhausted}
         </div>
+        <div>Select Card</div>
+        {/* Make dynamic */}
+        <select onChange={(e) => this.selectCard(e)}>
+          {listOfCards}
+        </select>
         <div>Cards Played:</div>
         <ul>{cardsPlayed}</ul>
         {/* Remove this button and make function update on state change of cards played */}
-        <button type="button" onClick={this.playCard}>Play Card</button>
+        <button type="button" onClick={() => this.playCard(selectedCard)}>Play Card</button>
       </div>
     );
   }
