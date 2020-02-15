@@ -16,7 +16,7 @@ const CardPicker = (props: Props) => {
   });
 
   return (
-    <div style={{display: 'flex'}}>
+    <div style={{display: 'flex', flexWrap: 'wrap'}}>
       {cards}
     </div>
   );
