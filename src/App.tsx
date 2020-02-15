@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import data from './dummyData';
+import CardPicker from './components/CardPicker';
 // TODO Figure out how to do exhaust cards
 
 interface Props {
@@ -188,6 +189,8 @@ class App extends React.Component< Props, State > {
         <ul>{cardsPlayed}</ul>
         {/* Remove this button and make function update on state change of cards played */}
         <button type="button" onClick={() => this.playCard(selectedCard)}>Play Card</button>
+
+        <CardPicker onCardClick={(cardName) => { console.log(cardName) }}/>
       </div>
     );
   }
