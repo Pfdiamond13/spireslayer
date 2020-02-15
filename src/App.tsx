@@ -1,14 +1,7 @@
 import React from 'react';
 import './App.css';
+import data from './dummyData';
 // TODO Figure out how to do exhaust cards
-
-// Move into new file
-const data = {
-  cards: [
-    { name: 'Strike', dmg: 6, block: 0, energy: 1, action: () => {} },
-    { name: 'Block', dmg: 0, block: 5, energy: 1, action: () => {} },
-  ],
-};
 
 interface Props {
 }
@@ -28,6 +21,7 @@ interface State {
   numberOfBlocks: number,
   cardsExhausted: number,
   selectedCard: {name: string, dmg: number, block: number, energy: number, action: Function },
+  cards: {cards: {name: string, dmg: number, block: number, energy: number, action: Function}[]}
 }
 class App extends React.Component< Props, State > {
   constructor(props: Props) {
@@ -47,6 +41,7 @@ class App extends React.Component< Props, State > {
       numberOfBlocks: 0,
       cardsExhausted: 0,
       selectedCard: { name: 'Strike', dmg: 6, block: 0, energy: 1, action: () => {} },
+      cards: data,
     };
   }
 
@@ -97,7 +92,8 @@ class App extends React.Component< Props, State > {
   }
 
   selectCard = (e: any) => {
-    this.setState({ selectedCard: data.cards[e.target.value] });
+    const { cards } = this.state;
+    this.setState({ selectedCard: cards.cards[e.target.value] });
   }
 
   render() {
@@ -113,6 +109,7 @@ class App extends React.Component< Props, State > {
       numberOfBlocks,
       cardsExhausted,
       selectedCard,
+      cards,
     } = this.state;
 
     const cardsPlayed = listOfCardsPlayed.map((card) => (
@@ -135,7 +132,7 @@ class App extends React.Component< Props, State > {
       </li>
     ));
 
-    const listOfCards = data.cards.map((card, index) => (
+    const listOfCards = cards.cards.map((card, index) => (
       <option value={index}>{card.name}</option>
     ));
 
@@ -184,7 +181,6 @@ class App extends React.Component< Props, State > {
           {cardsExhausted}
         </div>
         <div>Select Card</div>
-        {/* Make dynamic */}
         <select onChange={(e) => this.selectCard(e)}>
           {listOfCards}
         </select>
