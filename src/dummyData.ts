@@ -22,6 +22,7 @@ export interface Card {
   energy: number;
   type: CardType;
   action: CardAction;
+  src: string;
 }
 
 const generateDefaultAction: (dmg: number | null, block: number | null) => CardAction = (dmg, block) => {
@@ -32,9 +33,9 @@ const generateDefaultAction: (dmg: number | null, block: number | null) => CardA
 
 const data: { cards: Card[] } = {
   cards: [
-    { name: 'Strike', dmg: 6, block: 0, energy: 1, type: CardType.Attack, action: generateDefaultAction(6, null)},
+    { name: 'Strike', dmg: 6, block: 0, energy: 1, type: CardType.Attack, action: generateDefaultAction(6, null), src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/0/06/Strike_R.png',},
     // { name: 'Block', dmg: 0, block: 5, energy: 1, type: CardType.Skill, action: defAction},
-    { name: 'Bash', dmg: 8, block: 0, energy: 2, type: CardType.Attack, action: 
+    { name: 'Bash', dmg: 8, block: 0, energy: 2, type: CardType.Attack, src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/d/d8/Bash.png', action:
       (gameProps, calculateDamage, _calculateBlock) => {
         let newProps = { ...gameProps, enemyIsVulnerable: true, calculatedDamage: calculateDamage(8), calculatedBlock: 0 };
         return newProps;
@@ -47,7 +48,7 @@ const data: { cards: Card[] } = {
     // }},
     // { name: 'Clash', dmg: 14, block: 0, energy: 0, type: CardType.Attack,  action: defAction},
     // { name: 'Cleave', dmg: 8, block: 0, energy: 1, type: CardType.Attack,  action: defAction},
-    // { name: 'Clothesline', dmg: 12, block: 0, energy: 2, type: CardType.Attack, action: 
+    // { name: 'Clothesline', dmg: 12, block: 0, energy: 2, type: CardType.Attack, action:
     // (gameProps) => {
     //   let newProps = { ...gameProps, enemyIsWeak: true };
     //   return newProps;

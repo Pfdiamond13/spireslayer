@@ -24,6 +24,7 @@ interface State {
   cardsExhausted: number,
   selectedCard: Card,
   cards: Card[],
+  showCardPicker: boolean,
 }
 class App extends React.Component< Props, State > {
   constructor(props: Props) {
@@ -45,6 +46,7 @@ class App extends React.Component< Props, State > {
       cardsExhausted: 0,
       selectedCard: data.cards[0],
       cards: data.cards,
+      showCardPicker: false,
     };
   }
 
@@ -132,7 +134,10 @@ class App extends React.Component< Props, State > {
 
   selectCard = (e: any) => {
     const { cards } = this.state;
-    this.setState({ selectedCard: cards[e.target.value] });
+    this.setState({ selectedCard: cards[e.target.getAttribute('data-index')] });
+  }
+  toggleShowCardPicker = () => {
+    this.setState({showCardPicker: !this.state.showCardPicker});
   }
 
   render() {
@@ -220,17 +225,29 @@ class App extends React.Component< Props, State > {
           {cardsExhausted}
         </div>
         <div>Select Card</div>
-        <select onChange={(e) => this.selectCard(e)}>
-          {listOfCards}
-        </select>
+        {this.renderSelectedCard()}
         <div>Cards Played:</div>
         <ul>{cardsPlayed}</ul>
         {/* Remove this button and make function update on state change of cards played */}
         <button type="button" onClick={() => this.playCard(selectedCard)}>Play Card</button>
-
-        <CardPicker onCardClick={(cardName) => { console.log(cardName); }} />
       </div>
     );
+  }
+
+  renderSelectedCard = () => {
+    const { cards, selectedCard, showCardPicker } = this.state
+
+    const renderedCardPicker = showCardPicker ? <CardPicker cards={cards} onCardClick={(e) => {this.selectCard(e); }} /> : null;
+    return (
+      <React.Fragment>
+        <div>
+          <span>Selected:</span>
+          <img src={selectedCard.src} alt={selectedCard.name} width="155" height="200" />
+        </div>
+        <button onClick={this.toggleShowCardPicker}>Toggle Card Picker</button>
+        {renderedCardPicker}
+      </React.Fragment>
+    )
   }
 }
 

@@ -1,16 +1,17 @@
 import React from 'react';
-import cardImages from '../const/CardImages';
+import { Card } from '../dummyData';
 
 
 interface Props {
-  onCardClick: (cardName: string) => void
+  cards: Card[];
+  onCardClick: (e: any) => void
 }
 
 const CardPicker = (props: Props) => {
-  const cards = cardImages.map((cardImage) => {
+  const cards = props.cards.map((cardImage, idx) => {
     return (
-      <div key={cardImage.name} onClick={() => {props.onCardClick(cardImage.name)}}>
-        <img src={cardImage.src} alt={cardImage.name} width="155" height="200" />
+      <div key={cardImage.name} onClick={(e) => {props.onCardClick(e)}}>
+        <img src={cardImage.src} alt={cardImage.name} width="155" height="200" data-index={idx}/>
       </div>
     );
   });
