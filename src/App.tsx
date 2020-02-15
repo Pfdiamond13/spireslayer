@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import data from './dummyData';
+import data, { Card } from './dummyData';
 import CardPicker from './components/CardPicker';
 // TODO Figure out how to do exhaust cards
 
@@ -16,13 +16,14 @@ interface State {
   dexterity: number,
   selfIsWeak: boolean,
   selfIsFrail: boolean,
-  enemyIsVunerable: boolean,
+  enemyIsVulnerable: boolean,
+  enemyIsWeak: boolean,
   listOfRelics: { name: string, attr:string }[],
   numberOfAttacks: number,
   numberOfBlocks: number,
   cardsExhausted: number,
-  selectedCard: {name: string, dmg: number, block: number, energy: number, action: Function },
-  cards: {cards: {name: string, dmg: number, block: number, energy: number, action: Function}[]}
+  selectedCard: Card,
+  cards: Card[],
 }
 class App extends React.Component< Props, State > {
   constructor(props: Props) {
@@ -36,51 +37,88 @@ class App extends React.Component< Props, State > {
       dexterity: 0,
       selfIsWeak: false,
       selfIsFrail: false,
-      enemyIsVunerable: false,
+      enemyIsVulnerable: false,
+      enemyIsWeak: false,
       listOfRelics: [],
       numberOfAttacks: 0,
       numberOfBlocks: 0,
       cardsExhausted: 0,
-      selectedCard: { name: 'Strike', dmg: 6, block: 0, energy: 1, action: () => {} },
-      cards: data,
+      selectedCard: data.cards[0],
+      cards: data.cards,
     };
   }
 
   // Change 0.25 to dynamic if certain relic
   // Update to increment number of Attacks played
-  calculateDamage = (dmg:number) => {
-    const { selfIsWeak, enemyIsVunerable, strength } = this.state;
-    let totalDamage = dmg;
-    if (selfIsWeak) {
-      totalDamage = Math.floor(totalDamage - (totalDamage * 0.25));
+  calculateDamage = (dmg: number | null) => {
+    const { selfIsWeak, enemyIsVulnerable, strength } = this.state;
+    if (dmg !== null) {
+      let totalDamage = dmg;
+      if (selfIsWeak) {
+        totalDamage = Math.floor(totalDamage - (totalDamage * 0.25));
+      }
+      if (enemyIsVulnerable) {
+        totalDamage = Math.floor(totalDamage + (totalDamage * 0.50));
+      }
+      if (strength > 0 || strength < 0) {
+        totalDamage += strength;
+      }
+      return totalDamage;
     }
-    if (enemyIsVunerable) {
-      totalDamage = Math.floor(totalDamage + (totalDamage * 0.50));
-    }
-    if (strength > 0 || strength < 0) {
-      totalDamage += strength;
-    }
-    return totalDamage;
+    return 0;
   }
 
   // Change 0.25 to dynamic if certain relic
   // Update to increment number of blocks played
-  calculateBlock = (block:number) => {
+  calculateBlock = (block:number | null) => {
     const { selfIsFrail, dexterity } = this.state;
-    let basicBlock = block;
-    if (selfIsFrail) {
-      basicBlock = Math.floor(basicBlock - (basicBlock * 0.25));
+    if (block !== null) {
+      let basicBlock = block;
+      if (selfIsFrail) {
+        basicBlock = Math.floor(basicBlock - (basicBlock * 0.25));
+      }
+      if (dexterity > 0 || dexterity < 0) {
+        basicBlock += dexterity;
+      }
+      return basicBlock;
     }
-    if (dexterity > 0 || dexterity < 0) {
-      basicBlock += dexterity;
-    }
-    return basicBlock;
+    return 0;
   }
 
-  playCard = (card: any) => {
-    let { dmgTotal, blockTotal, listOfCardsPlayed, energy } = this.state;
-    const playedCard = { name: card.name, dmg: this.calculateDamage(card.dmg), block: this.calculateBlock(card.block), energy: card.energy };
-    this.setState({ listOfCardsPlayed: [...listOfCardsPlayed, playedCard], dmgTotal: dmgTotal += playedCard.dmg, blockTotal: blockTotal += playedCard.block, energy: energy -= playedCard.energy });
+  playCard = (card: Card) => {
+    const {
+      enemyIsVulnerable,
+      blockTotal,
+      enemyIsWeak,
+      strength,
+      dmgTotal,
+      listOfCardsPlayed,
+      energy,
+    } = this.state;
+
+    const gameProps = {
+      enemyIsVulnerable,
+      blockTotal,
+      enemyIsWeak,
+      strength,
+    };
+    const newProps = card.action(gameProps, this.calculateDamage, this.calculateBlock);
+
+    const playedCard = {
+      name: card.name,
+      dmg: newProps.calculatedDamage || 0,
+      block: newProps.calculatedBlock || 0,
+      energy: card.energy,
+    };
+    this.setState({
+      listOfCardsPlayed: [...listOfCardsPlayed, playedCard],
+      dmgTotal: dmgTotal + playedCard.dmg,
+      blockTotal: blockTotal + playedCard.block,
+      energy: energy - playedCard.energy,
+      enemyIsWeak: newProps.enemyIsWeak,
+      enemyIsVulnerable: newProps.enemyIsVulnerable,
+
+    });
   }
 
   // Ask Ben about this type
@@ -94,7 +132,7 @@ class App extends React.Component< Props, State > {
 
   selectCard = (e: any) => {
     const { cards } = this.state;
-    this.setState({ selectedCard: cards.cards[e.target.value] });
+    this.setState({ selectedCard: cards[e.target.value] });
   }
 
   render() {
@@ -133,7 +171,7 @@ class App extends React.Component< Props, State > {
       </li>
     ));
 
-    const listOfCards = cards.cards.map((card, index) => (
+    const listOfCards = cards.map((card, index) => (
       <option value={index}>{card.name}</option>
     ));
 
@@ -190,7 +228,7 @@ class App extends React.Component< Props, State > {
         {/* Remove this button and make function update on state change of cards played */}
         <button type="button" onClick={() => this.playCard(selectedCard)}>Play Card</button>
 
-        <CardPicker onCardClick={(cardName) => { console.log(cardName) }}/>
+        <CardPicker onCardClick={(cardName) => { console.log(cardName); }} />
       </div>
     );
   }
