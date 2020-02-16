@@ -1,7 +1,9 @@
 import React from 'react';
 import './App.css';
-import data, { Card } from './dummyData';
+import data, { Card, CardType } from './dummyData';
 import CardPicker from './components/CardPicker';
+import cardImages from './const/CardImages';
+import PlayedCard from './components/PlayedCard';
 // TODO Figure out how to do exhaust cards
 
 interface Props {
@@ -11,7 +13,7 @@ interface State {
   dmgTotal: number,
   blockTotal: number,
   energy: number,
-  listOfCardsPlayed: {name: string, dmg: number, block: number, energy: number}[],
+  listOfCardsPlayed: {name: string, type: CardType, src: string, dmg: number, block: number, energy: number}[],
   strength: number,
   dexterity: number,
   selfIsWeak: boolean,
@@ -19,8 +21,6 @@ interface State {
   enemyIsVulnerable: boolean,
   enemyIsWeak: boolean,
   listOfRelics: { name: string, attr:string }[],
-  numberOfAttacks: number,
-  numberOfBlocks: number,
   cardsExhausted: number,
   selectedCard: Card,
   cards: Card[],
@@ -41,8 +41,6 @@ class App extends React.Component< Props, State > {
       enemyIsVulnerable: false,
       enemyIsWeak: false,
       listOfRelics: [],
-      numberOfAttacks: 0,
-      numberOfBlocks: 0,
       cardsExhausted: 0,
       selectedCard: data.cards[0],
       cards: data.cards,
@@ -108,6 +106,8 @@ class App extends React.Component< Props, State > {
 
     const playedCard = {
       name: card.name,
+      type: card.type,
+      src: card.src,
       dmg: newProps.computedDamage || 0,
       block: newProps.computedBlock || 0,
       energy: card.energy,
@@ -135,7 +135,7 @@ class App extends React.Component< Props, State > {
 
   selectCard = (e: any) => {
     const { cards } = this.state;
-    this.setState({ selectedCard: cards[e.target.getAttribute('data-index')] });
+    this.setState({ selectedCard: cards[e.target.getAttribute('data-index')], showCardPicker: false });
   }
 
   toggleShowCardPicker = () => {
@@ -169,8 +169,6 @@ class App extends React.Component< Props, State > {
       strength,
       dexterity,
       listOfRelics,
-      numberOfAttacks,
-      numberOfBlocks,
       cardsExhausted,
       selectedCard,
       cards,
@@ -179,18 +177,21 @@ class App extends React.Component< Props, State > {
       enemyIsVulnerable,
     } = this.state;
 
-    const cardsPlayed = listOfCardsPlayed.map((card) => (
-      <li>
-        Name:
-        {card.name}
-        Damage:
-        {card.dmg}
-        Block:
-        {card.block}
-        Energy Cost:
-        {card.energy}
-      </li>
-    ));
+    const cardsPlayed = listOfCardsPlayed.map((card, idx) => {
+      return (
+        <div key={`${card.name}-${idx}`}>
+          <PlayedCard card={card} />
+        </div>
+      )
+    });
+
+    const numberOfAttacks = listOfCardsPlayed.reduce((prev, card) => {
+      return prev + (card.type === CardType.Attack ? 1 : 0);
+    }, 0);
+
+    const numberOfSkills = listOfCardsPlayed.reduce((prev, card) => {
+      return prev + (card.type === CardType.Skill ? 1 : 0);
+    }, 0);
 
     const relics = listOfRelics.map((relic) => (
       <li>
@@ -205,27 +206,32 @@ class App extends React.Component< Props, State > {
         <div>Current Relics:</div>
         <ul>{relics}</ul>
         <div>
-          Current Strength:
+          <b>Current Strength:</b>
+          <img alt="strength" src="https://vignette.wikia.nocookie.net/slay-the-spire/images/8/8b/Strength.png/" height="20px" />
           {strength}
         </div>
         <div>
-          Current Dexterity:
+          <b>Current Dexterity:</b>
+          <img alt="dexterity" src="https://vignette.wikia.nocookie.net/slay-the-spire/images/0/0d/Dexterity.png" height="20px" />
           {dexterity}
         </div>
         <div>
-          Current Energy:
+          <b>Current Energy:</b>
           {energy}
         </div>
         <div>
           Current Debuffs:
-          <label> Weak: </label>
+          <b>Weak:</b>
+          <img alt="Weak" src="https://vignette.wikia.nocookie.net/slay-the-spire/images/b/b9/Icon_Weak.png" height="20px" />
           <input type="checkbox" value="weak" checked={selfIsWeak} name="weak" onChange={(e) => this.controlDebuff(e)} />
-          <label> Frail: </label>
+          <b> Frail: </b>
+          <img alt="Frail" src="https://vignette.wikia.nocookie.net/slay-the-spire/images/4/48/Icon_Frail.png" height="20px" />
           <input type="checkbox" value="frail" checked={selfIsFrail} onChange={(e) => this.controlDebuff(e)} />
         </div>
         <div>
           Enemy Debuffs:
-          <label> Vulnerable: </label>
+          <b> Vulnerable: </b>
+          <img alt="Vulnerable" src="https://vignette.wikia.nocookie.net/slay-the-spire/images/a/ae/Icon_Vulnerable.png" height="20px" />
           <input type="checkbox" value="enemyIsVulnerable" checked={enemyIsVulnerable} name="enemyIsVulnerable" readOnly />
         </div>
         <div>
@@ -241,8 +247,8 @@ class App extends React.Component< Props, State > {
           {numberOfAttacks}
         </div>
         <div>
-          Blocks Played:
-          {numberOfBlocks}
+          Skills Played:
+          {numberOfSkills}
         </div>
         <div>
           Cards Exhausted:
@@ -250,10 +256,10 @@ class App extends React.Component< Props, State > {
         </div>
         <div>Select Card</div>
         {this.renderSelectedCard()}
-        <div>Cards Played:</div>
-        <ul>{cardsPlayed}</ul>
         {/* Remove this button and make function update on state change of cards played */}
         <button type="button" onClick={() => this.playCard(selectedCard)}>Play Card</button>
+        <div>Cards Played:</div>
+        <ul>{cardsPlayed}</ul>
       </div>
     );
   }

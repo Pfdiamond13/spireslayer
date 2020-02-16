@@ -7,7 +7,7 @@ interface GameProps {
   computedBlock?: number;
 }
 
-enum CardType {
+export enum CardType {
   Attack = 'Attack',
   Skill = 'Skill',
   Power = 'Power',
