@@ -1,33 +1,36 @@
 import React from 'react';
 import './App.css';
-import data, { Card, CardType } from './dummyData';
+import cardList, { Card, CardType } from './cardData';
+import relicList from './relicData';
 import CardPicker from './components/CardPicker';
-import cardImages from './const/CardImages';
 import PlayedCard from './components/PlayedCard';
+import RelicPicker from './components/RelicPicker';
+import AcquiredRelic from './components/AcquiredRelic';
 // TODO Figure out how to do exhaust cards
 
-interface Props {
-}
 
 interface State {
-  dmgTotal: number,
-  blockTotal: number,
-  energy: number,
-  listOfCardsPlayed: {name: string, type: CardType, src: string, dmg: number, block: number, energy: number}[],
-  strength: number,
-  dexterity: number,
-  selfIsWeak: boolean,
-  selfIsFrail: boolean,
-  enemyIsVulnerable: boolean,
-  enemyIsWeak: boolean,
-  listOfRelics: { name: string, attr:string }[],
-  cardsExhausted: number,
-  selectedCard: Card,
-  cards: Card[],
-  showCardPicker: boolean,
+  dmgTotal: number;
+  blockTotal: number;
+  energy: number;
+  listOfCardsPlayed: {name: string; type: CardType; src: string; dmg: number; block: number; energy: number}[];
+  strength: number;
+  dexterity: number;
+  selfIsWeak: boolean;
+  selfIsFrail: boolean;
+  enemyIsVulnerable: boolean;
+  enemyIsWeak: boolean;
+  relics: { name: string; src: string }[];
+  cardsExhausted: number;
+  selectedCard: Card;
+  selectedRelic: { name: string; src: string };
+  cards: Card[];
+  showCardPicker: boolean;
+  showRelicPicker: boolean;
+  acquiredRelics: { name: string; src: string }[];
 }
-class App extends React.Component< Props, State > {
-  constructor(props: Props) {
+class App extends React.Component< {}, State > {
+  constructor(props: {}) {
     super(props);
     this.state = {
       dmgTotal: 0,
@@ -40,11 +43,14 @@ class App extends React.Component< Props, State > {
       selfIsFrail: false,
       enemyIsVulnerable: false,
       enemyIsWeak: false,
-      listOfRelics: [],
+      relics: relicList.relics,
+      acquiredRelics: [],
       cardsExhausted: 0,
-      selectedCard: data.cards[0],
-      cards: data.cards,
+      selectedCard: cardList.cards[0],
+      selectedRelic: relicList.relics[0],
+      cards: cardList.cards,
       showCardPicker: false,
+      showRelicPicker: false,
     };
   }
 
@@ -70,7 +76,7 @@ class App extends React.Component< Props, State > {
 
   // Change 0.25 to dynamic if certain relic
   // Update to increment number of blocks played
-  calculateBlock = (block:number | null) => {
+  calculateBlock = (block: number | null) => {
     const { selfIsFrail, dexterity } = this.state;
     if (block !== null) {
       let basicBlock = block;
@@ -85,7 +91,7 @@ class App extends React.Component< Props, State > {
     return 0;
   }
 
-  playCard = (card: Card) => {
+  playCard = (card: Card, isUpgraded: boolean) => {
     const {
       enemyIsVulnerable,
       blockTotal,
@@ -102,7 +108,9 @@ class App extends React.Component< Props, State > {
       enemyIsWeak,
       strength,
     };
-    const newProps = card.action(gameProps, this.calculateDamage, this.calculateBlock);
+    const newProps = isUpgraded
+      ? card.upgraded.action(gameProps, this.calculateDamage, this.calculateBlock)
+      : card.standard.action(gameProps, this.calculateDamage, this.calculateBlock);
 
     const playedCard = {
       name: card.name,
@@ -110,7 +118,8 @@ class App extends React.Component< Props, State > {
       src: card.src,
       dmg: newProps.computedDamage || 0,
       block: newProps.computedBlock || 0,
-      energy: card.energy,
+      energy: isUpgraded ? card.upgraded.energy : card.standard.energy,
+      isUpgraded,
     };
     this.setState({
       listOfCardsPlayed: [...listOfCardsPlayed, playedCard],
@@ -124,7 +133,11 @@ class App extends React.Component< Props, State > {
     });
   }
 
-  // Ask Ben about this type
+  pickRelic = (relic: any) => {
+    const { acquiredRelics } = this.state;
+    this.setState({acquiredRelics: [...acquiredRelics, relic]})
+  }
+
   controlDebuff = (e: any) => {
     if (e.target.value === 'frail') {
       this.setState((prevState) => ({ selfIsFrail: !prevState.selfIsFrail }));
@@ -138,9 +151,19 @@ class App extends React.Component< Props, State > {
     this.setState({ selectedCard: cards[e.target.getAttribute('data-index')], showCardPicker: false });
   }
 
+  selectRelic = (e: any) => {
+    const { relics } = this.state;
+    this.setState({ selectedRelic: relics[e.target.getAttribute('data-index')], showRelicPicker: false });
+  }
+
   toggleShowCardPicker = () => {
     const { showCardPicker } = this.state;
     this.setState({ showCardPicker: !showCardPicker });
+  }
+
+  toggleShowRelicPicker = () => {
+    const { showRelicPicker } = this.state;
+    this.setState({ showRelicPicker: !showRelicPicker });
   }
 
   renderSelectedCard = () => {
@@ -151,10 +174,27 @@ class App extends React.Component< Props, State > {
     return (
       <>
         <div>
-          <span>Selected:</span>
+          <span>Selected Card:</span>
           <img src={selectedCard.src} alt={selectedCard.name} width="155" height="200" />
         </div>
         <button type="button" onClick={this.toggleShowCardPicker}>Toggle Card Picker</button>
+        {renderedCardPicker}
+      </>
+    );
+  }
+
+  renderSelectedRelic = () => {
+    const { relics, selectedRelic, showRelicPicker } = this.state;
+
+    const renderedCardPicker = showRelicPicker
+      ? <RelicPicker relics={relics} onRelicClick={(e) => { this.selectRelic(e); }} /> : null;
+    return (
+      <>
+        <div>
+          <span>Selected Relic:</span>
+          <img src={selectedRelic.src} alt={selectedRelic.name} width="73" height="80" />
+        </div>
+        <button type="button" onClick={this.toggleShowRelicPicker}>Toggle Relic Picker</button>
         {renderedCardPicker}
       </>
     );
@@ -168,13 +208,13 @@ class App extends React.Component< Props, State > {
       listOfCardsPlayed,
       strength,
       dexterity,
-      listOfRelics,
+      acquiredRelics,
       cardsExhausted,
       selectedCard,
-      cards,
       selfIsWeak,
       selfIsFrail,
       enemyIsVulnerable,
+      selectedRelic,
     } = this.state;
 
     const cardsPlayed = listOfCardsPlayed.map((card, idx) => {
@@ -193,18 +233,19 @@ class App extends React.Component< Props, State > {
       return prev + (card.type === CardType.Skill ? 1 : 0);
     }, 0);
 
-    const relics = listOfRelics.map((relic) => (
-      <li>
-        Name:
-        {relic.name}
-      </li>
+    const listOfAcquiredRelics = acquiredRelics.map((relic, idx) => (
+      <div key={`${relic.name}-${idx}`}>
+      <AcquiredRelic relic={relic} />
+    </div>
     ));
 
     return (
       <div className="App">
         <div>Ironclad</div>
+        {this.renderSelectedRelic()}
+        <button type="button" onClick={() => this.pickRelic(selectedRelic)}>Add Relic</button>
         <div>Current Relics:</div>
-        <ul>{relics}</ul>
+        <ul>{listOfAcquiredRelics}</ul>
         <div>
           <b>Current Strength:</b>
           <img alt="strength" src="https://vignette.wikia.nocookie.net/slay-the-spire/images/8/8b/Strength.png/" height="20px" />
@@ -257,7 +298,7 @@ class App extends React.Component< Props, State > {
         <div>Select Card</div>
         {this.renderSelectedCard()}
         {/* Remove this button and make function update on state change of cards played */}
-        <button type="button" onClick={() => this.playCard(selectedCard)}>Play Card</button>
+        <button type="button" onClick={() => this.playCard(selectedCard, false)}>Play Card</button>
         <div>Cards Played:</div>
         <ul>{cardsPlayed}</ul>
       </div>

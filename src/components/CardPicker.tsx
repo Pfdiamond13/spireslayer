@@ -1,10 +1,10 @@
 import React from 'react';
-import { Card } from '../dummyData';
+import { Card } from '../cardData';
 
 
 interface Props {
   cards: Card[];
-  onCardClick: (e: any) => void
+  onCardClick: (e: any) => void;
 }
 
 const CardPicker = (props: Props) => {

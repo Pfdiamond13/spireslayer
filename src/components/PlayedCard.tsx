@@ -1,8 +1,8 @@
 import React from 'react';
-import { CardType } from '../dummyData';
+import { CardType } from '../cardData';
 
 interface Props {
-  card: {name: string, type: CardType, src: string, dmg: number, block: number, energy: number}
+  card: {name: string; type: CardType; src: string; dmg: number; block: number; energy: number};
 }
 
 const PlayedCard = (props: Props) => {
