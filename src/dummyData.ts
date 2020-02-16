@@ -34,7 +34,7 @@ const generateDefaultAction: (dmg: number | null, block: number | null) => CardA
 const data: { cards: Card[] } = {
   cards: [
     { name: 'Strike', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/0/06/Strike_R.png', dmg: 6, block: 0, energy: 1, type: CardType.Attack, action: generateDefaultAction(6, null)},
-    { name: 'Block', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/7/7d/Defend_R.png', dmg: 0, block: 5, energy: 1, type: CardType.Skill, action: generateDefaultAction(null, 0)},
+    { name: 'Block', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/7/7d/Defend_R.png', dmg: 0, block: 5, energy: 1, type: CardType.Skill, action: generateDefaultAction(null, 5)},
     { name: 'Bash', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/d/d8/Bash.png', dmg: 8, block: 0, energy: 2, type: CardType.Attack, action:
       (gameProps, calculateDamage, _calculateBlock) => {
         let newProps = { ...gameProps, enemyIsVulnerable: true, computedDamage: calculateDamage(8), computedBlock: 0 };
@@ -102,7 +102,7 @@ const data: { cards: Card[] } = {
     { name: 'Barricade', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/1/12/Barricade.png', dmg: 0, block: 0, energy: 3, type: CardType.Power,  action: generateDefaultAction(null, null)},
     { name: 'Dual Wield', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/6/61/DualWield.png', dmg: 0, block: 0, energy: 1, type: CardType.Skill,  action: generateDefaultAction(null, null)},
     { name: 'Entrench', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/a/a2/Entrench.png', dmg: 0, block: 0, energy: 2, type: CardType.Skill, action: (gameProps, _calculateDamage, _calculateBlock) => {
-      let newProps = { ...gameProps, blockTotal: gameProps.blockTotal * 2}
+      let newProps = { ...gameProps, computedBlock: gameProps.blockTotal}
       return newProps;
     }},
     { name: 'Disarm', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/2/29/Disarm.png', dmg: 0, block: 0, energy: 1, type: CardType.Skill,  action: generateDefaultAction(null, null)},
@@ -110,7 +110,7 @@ const data: { cards: Card[] } = {
     { name: 'True Grit', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/4/46/TrueGrit.png', dmg: 0, block: 7, energy: 1, type: CardType.Skill,  action: generateDefaultAction(null, 7)},
     { name: 'Battle Trance', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/3/3a/BattleTrance.png', dmg: 0, block: 0, energy: 0, type: CardType.Skill,  action: generateDefaultAction(null, null)},
     { name: 'Bloodletting', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/f/ff/Bloodletting.png', dmg: 0, block: 0, energy: 0, type: CardType.Skill,  action: generateDefaultAction(null, null)},
-    { name: 'Dual Wield', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/6/61/DualWield.png', dmg: 0, block: 0, energy: 1, type: CardType.Skill,  action: generateDefaultAction(null, null)},
+    { name: 'Burning Pact', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/6/61/BurningPact.png', dmg: 0, block: 0, energy: 1, type: CardType.Skill,  action: generateDefaultAction(null, null)},
     { name: 'Flex', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/5/5a/Flex.png', dmg: 0, block: 0, energy: 0, type: CardType.Skill,  action: (gameProps, _calculateDamage, _calculateBlock) => {
       let newProps = { ...gameProps, strength: gameProps.strength + 4}
       return newProps;
@@ -134,7 +134,7 @@ const data: { cards: Card[] } = {
     { name: 'Exhume', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/1/1b/Exhume.png', dmg: 0, block: 0, energy: 1, type: CardType.Skill,  action: generateDefaultAction(null, null)},
     { name: 'Impervious', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/e/e3/Impervious.png', dmg: 0, block: 30, energy: 1, type: CardType.Skill,  action: generateDefaultAction(null, 30)},
     { name: 'Limit Break', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/8/8c/LimitBreak.png', dmg: 0, block: 0, energy: 1, type: CardType.Skill,  action: (gameProps, _calculateDamage, _calculateBlock) => {
-      let newProps = { ...gameProps, strength: gameProps.strength ** 2}
+      let newProps = { ...gameProps, strength: gameProps.strength * 2}
       return newProps;
     }},
     { name: 'Offering', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/4/47/Offering.png', dmg: 0, block: 0, energy: 0, type: CardType.Skill,  action: generateDefaultAction(null, null)},

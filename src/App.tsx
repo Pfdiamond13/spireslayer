@@ -119,6 +119,7 @@ class App extends React.Component< Props, State > {
       energy: energy - playedCard.energy,
       enemyIsWeak: newProps.enemyIsWeak,
       enemyIsVulnerable: newProps.enemyIsVulnerable,
+      strength: newProps.strength,
 
     });
   }
@@ -154,6 +155,9 @@ class App extends React.Component< Props, State > {
       cardsExhausted,
       selectedCard,
       cards,
+      selfIsWeak,
+      selfIsFrail,
+      enemyIsVulnerable,
     } = this.state;
 
     const cardsPlayed = listOfCardsPlayed.map((card) => (
@@ -200,9 +204,14 @@ class App extends React.Component< Props, State > {
         <div>
           Current Debuffs:
           <label> Weak: </label>
-          <input type="checkbox" value="weak" name="weak" onChange={(e) => this.controlDebuff(e)} />
+          <input type="checkbox" value="weak" checked={selfIsWeak} name="weak" onChange={(e) => this.controlDebuff(e)} />
           <label> Frail: </label>
-          <input type="checkbox" value="frail" onChange={(e) => this.controlDebuff(e)} />
+          <input type="checkbox" value="frail" checked={selfIsFrail} onChange={(e) => this.controlDebuff(e)} />
+        </div>
+        <div>
+          Enemy Debuffs:
+          <label> Vulnerable: </label>
+          <input type="checkbox" value="enemyIsVulnerable" checked={enemyIsVulnerable} name="enemyIsVulnerable" readOnly />
         </div>
         <div>
           Damage Total:
