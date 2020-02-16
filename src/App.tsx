@@ -108,8 +108,8 @@ class App extends React.Component< Props, State > {
 
     const playedCard = {
       name: card.name,
-      dmg: newProps.calculatedDamage || 0,
-      block: newProps.calculatedBlock || 0,
+      dmg: newProps.computedDamage || 0,
+      block: newProps.computedBlock || 0,
       energy: card.energy,
     };
     this.setState({
