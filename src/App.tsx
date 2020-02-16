@@ -137,8 +137,27 @@ class App extends React.Component< Props, State > {
     const { cards } = this.state;
     this.setState({ selectedCard: cards[e.target.getAttribute('data-index')] });
   }
+
   toggleShowCardPicker = () => {
-    this.setState({showCardPicker: !this.state.showCardPicker});
+    const { showCardPicker } = this.state;
+    this.setState({ showCardPicker: !showCardPicker });
+  }
+
+  renderSelectedCard = () => {
+    const { cards, selectedCard, showCardPicker } = this.state;
+
+    const renderedCardPicker = showCardPicker
+      ? <CardPicker cards={cards} onCardClick={(e) => { this.selectCard(e); }} /> : null;
+    return (
+      <>
+        <div>
+          <span>Selected:</span>
+          <img src={selectedCard.src} alt={selectedCard.name} width="155" height="200" />
+        </div>
+        <button type="button" onClick={this.toggleShowCardPicker}>Toggle Card Picker</button>
+        {renderedCardPicker}
+      </>
+    );
   }
 
   render() {
@@ -178,10 +197,6 @@ class App extends React.Component< Props, State > {
         Name:
         {relic.name}
       </li>
-    ));
-
-    const listOfCards = cards.map((card, index) => (
-      <option value={index}>{card.name}</option>
     ));
 
     return (
@@ -241,22 +256,6 @@ class App extends React.Component< Props, State > {
         <button type="button" onClick={() => this.playCard(selectedCard)}>Play Card</button>
       </div>
     );
-  }
-
-  renderSelectedCard = () => {
-    const { cards, selectedCard, showCardPicker } = this.state
-
-    const renderedCardPicker = showCardPicker ? <CardPicker cards={cards} onCardClick={(e) => {this.selectCard(e); }} /> : null;
-    return (
-      <React.Fragment>
-        <div>
-          <span>Selected:</span>
-          <img src={selectedCard.src} alt={selectedCard.name} width="155" height="200" />
-        </div>
-        <button onClick={this.toggleShowCardPicker}>Toggle Card Picker</button>
-        {renderedCardPicker}
-      </React.Fragment>
-    )
   }
 }
 
