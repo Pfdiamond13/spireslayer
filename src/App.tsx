@@ -8,7 +8,6 @@ import RelicPicker from './components/RelicPicker';
 import AcquiredRelic from './components/AcquiredRelic';
 // TODO Figure out how to do exhaust cards
 
-
 interface State {
   dmgTotal: number;
   blockTotal: number;
@@ -54,8 +53,28 @@ class App extends React.Component< {}, State > {
     };
   }
 
-  // Change 0.25 to dynamic if certain relic
-  // Update to increment number of Attacks played
+  resetTurn = () => {
+    this.setState({
+      dmgTotal: 0,
+      blockTotal: 0,
+      energy: 3,
+      listOfCardsPlayed: [],
+      strength: 0,
+      dexterity: 0,
+      selfIsWeak: false,
+      selfIsFrail: false,
+      enemyIsVulnerable: false,
+      enemyIsWeak: false,
+      relics: relicList.relics,
+      acquiredRelics: [],
+      cardsExhausted: 0,
+      selectedCard: cardList.cards[0],
+      selectedRelic: relicList.relics[0],
+      cards: cardList.cards,
+      showCardPicker: false,
+      showRelicPicker: false,
+    });
+  }
   calculateDamage = (dmg: number | null) => {
     const { selfIsWeak, enemyIsVulnerable, strength } = this.state;
     if (dmg !== null) {
@@ -74,8 +93,6 @@ class App extends React.Component< {}, State > {
     return 0;
   }
 
-  // Change 0.25 to dynamic if certain relic
-  // Update to increment number of blocks played
   calculateBlock = (block: number | null) => {
     const { selfIsFrail, dexterity } = this.state;
     if (block !== null) {
@@ -135,7 +152,9 @@ class App extends React.Component< {}, State > {
 
   pickRelic = (relic: any) => {
     const { acquiredRelics } = this.state;
-    this.setState({acquiredRelics: [...acquiredRelics, relic]})
+    if (!acquiredRelics.includes(relic)) {
+      this.setState({acquiredRelics: [...acquiredRelics, relic]})
+    }
   }
 
   controlDebuff = (e: any) => {
@@ -242,6 +261,7 @@ class App extends React.Component< {}, State > {
     return (
       <div className="App">
         <div>Ironclad</div>
+        <button type="button" onClick={this.resetTurn}>RESET TURN</button>
         {this.renderSelectedRelic()}
         <button type="button" onClick={() => this.pickRelic(selectedRelic)}>Add Relic</button>
         <div>Current Relics:</div>

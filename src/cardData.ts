@@ -19,8 +19,8 @@ export interface Card {
   name: string;
   type: CardType;
   src: string;
-  standard: { energy: number, action: CardAction }
-  upgraded: { energy: number, action: CardAction }
+  standard: { energy: number, action: CardAction };
+  upgraded: { energy: number, action: CardAction };
 }
 
 const generateDefaultAction: (dmg: number | null, block: number | null) => CardAction = (dmg, block) => {
@@ -436,12 +436,12 @@ const cardList: { cards: Card[] } = {
     {
       name: 'Exhume', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/1/1b/Exhume.png', type: CardType.Skill,
       standard: { energy: 1, action: generateDefaultAction(null, null) },
-      upgraded: { energy: 0, action: generateDefaultAction(null, null) }
+      upgraded: { energy: 0, action: generateDefaultAction(null, null) },
     },
     {
       name: 'Impervious', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/e/e3/Impervious.png', type: CardType.Skill,
       standard: { energy: 2, action: generateDefaultAction(null, 30) },
-      upgraded: { energy: 2, action: generateDefaultAction(null, 40) }
+      upgraded: { energy: 2, action: generateDefaultAction(null, 40) },
     },
     {
       name: 'Limit Break', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/8/8c/LimitBreak.png', type: CardType.Skill,
@@ -449,19 +449,19 @@ const cardList: { cards: Card[] } = {
         energy: 1, action: (gameProps, _calculateDamage, _calculateBlock) => {
           let newProps = { ...gameProps, strength: gameProps.strength * 2 }
           return newProps;
-        }
+        },
       },
       upgraded: {
         energy: 1, action: (gameProps, _calculateDamage, _calculateBlock) => {
-          let newProps = { ...gameProps, strength: gameProps.strength * 2 }
+          const newProps = { ...gameProps, strength: gameProps.strength * 2 }
           return newProps;
-        }
-      }
+        },
+      },
     },
     {
       name: 'Offering', src: 'https://vignette.wikia.nocookie.net/slay-the-spire/images/4/47/Offering.png', type: CardType.Skill,
-      standard: { energy: 0, action: generateDefaultAction(null, null) },
-      upgraded: { energy: 0, action: generateDefaultAction(null, null) }
+      standard: { energy: -2, action: generateDefaultAction(null, null) },
+      upgraded: { energy: -2, action: generateDefaultAction(null, null) },
     },
   ],
 };
